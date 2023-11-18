@@ -1,0 +1,16 @@
+services:
+    app:
+        command: ["npm", "run", "dev"]
+        image: node:alpine
+        volumes:
+            - ./:/var/www/
+        working_dir: /var/www/
+
+    prod:
+        command: ["node", ".output/server/index.mjs"]
+        image: node:alpine
+        profiles:
+            - prod
+        volumes:
+            - ./:/var/www/
+        working_dir: /var/www/
