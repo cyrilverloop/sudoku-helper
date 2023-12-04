@@ -1,6 +1,7 @@
 {
   "name": "sudoku-helper",
-  "private": true,
+  "description": "A project to help you solve Sudokus.",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "build": "nuxt build",
