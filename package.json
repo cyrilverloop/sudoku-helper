@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev --https --ssl-cert ./tls/server.crt --ssl-key ./tls/server.key",
+    "dev": "nuxt dev",
+    "dev-tls": "nuxt dev --https --ssl-cert ./tls/server.crt --ssl-key ./tls/server.key",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
