@@ -14,7 +14,7 @@
   "devDependencies": {
     "@nuxt/devtools": "latest",
     "@types/bootstrap": "^5.2.9",
-    "nuxt": "^3.9.2",
+    "nuxt": "^3.9.3",
     "typescript": "^5.2.2",
     "vue": "^3.3.8",
     "vue-router": "^4.2.5",
