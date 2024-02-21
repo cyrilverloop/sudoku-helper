@@ -156,7 +156,7 @@
             <div class="col d-flex justify-content-center">
                 <div class="btn-group btn-group-lg" role="group" aria-label="Choice of digit.">
 
-                    <Digits v-for="digit in 9"
+                    <Digit v-for="digit in 9"
                         :digit="digit">
                         <input type="radio" class="btn-check" name="digit-answer" autocomplete="off"
                             v-if="(selectedSquare instanceof AnswerSquare) === true || (selectedSquare instanceof FilledSquare) === true"
@@ -172,7 +172,7 @@
                             :true-value="digit"
                             :false-value="null"
                             />
-                    </Digits>
+                    </Digit>
 
                 </div>
             </div>
