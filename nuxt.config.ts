@@ -4,6 +4,9 @@ export default defineNuxtConfig({
         'bootstrap/dist/css/bootstrap.min.css'
     ],
     devtools: { enabled: true },
+    modules: [
+        '@nuxt/test-utils/module'
+    ],
     typescript: {
         strict: true,
         typeCheck: true
