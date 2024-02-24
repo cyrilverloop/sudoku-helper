@@ -53,6 +53,11 @@ Stopping :
 user@host sudoku-helper$ docker compose down
 ```
 
+Running tests :
+```shellsession
+user@host sudoku-helper$ docker compose run --rm app npm test
+```
+
 ### In production
 
 Building :
