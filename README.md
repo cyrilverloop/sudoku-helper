@@ -28,13 +28,13 @@ user@host sudoku-helper$ docker compose run --rm app npm i
 
 Add the default container configuration :
 ```shellsession
-user@host sudoku-helper$ cp docker-compose.override.yml.dist docker-compose.override.yml
+user@host sudoku-helper$ cp compose.override.yaml.dist compose.override.yaml
 ```
 The default port is "3000" and the connection does not use a TLS certificate.
 
-To use a TLS certificate in the `dev` environment, put the certificate in `./tls/server.crt`, the key in `./tls/server.key` and use `command: ["npm", "run", "dev-tls"]` in the `./docker-compose.override.yml`.
+To use a TLS certificate in the `dev` environment, put the certificate in `./tls/server.crt`, the key in `./tls/server.key` and use `command: ["npm", "run", "dev-tls"]` in the `./compose.override.yaml`.
 
-The `./docker-compose.override.yml` file and the `./tls/` directory are ignored by git, you can modify them to your needs.
+The `./compose.override.yaml` file and the `./tls/` directory are ignored by git, you can modify them to your needs.
 
 
 ## Running the app
