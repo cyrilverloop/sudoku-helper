@@ -20,7 +20,7 @@
     "@vitest/coverage-v8": "^2.0.5",
     "@vue/test-utils": "^2.4.4",
     "happy-dom": "^15.7.4",
-    "nuxt": "^3.14.159",
+    "nuxt": "^3.14.1592",
     "typescript": "^5.2.2",
     "vitest": "^2.0.5",
     "vue": "^3.3.8",
