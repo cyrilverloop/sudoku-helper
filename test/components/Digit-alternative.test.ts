@@ -1,6 +1,6 @@
 import { afterEach, assert, beforeEach, suite, test } from 'vitest';
 import { mount } from '@vue/test-utils';
-import Digit from "../components/Digit.vue";
+import Digit from "../../app/components/Digit.vue";
 
 suite('In the Digit component', () => {
     let digitComponent:any = null;
@@ -30,12 +30,12 @@ suite('In the Digit component', () => {
 
         test('can be checked by clicking its label', () => {
             const inputNode = digitComponent.find('input');
-    
+
             assert.isFalse(inputNode.element.checked);
-    
+
             const labelNode = digitComponent.find('label');
             labelNode.trigger('click');
-    
+
             assert.isTrue(inputNode.element.checked);
         });
     });
@@ -74,12 +74,12 @@ suite('In the Digit component', () => {
 
         test('can be checked by clicking its label', () => {
             const inputNode = digitComponent.find('input');
-    
+
             assert.isFalse(inputNode.element.checked);
-    
+
             const labelNode = digitComponent.find('label');
             labelNode.trigger('click');
-    
+
             assert.isTrue(inputNode.element.checked);
         });
     });

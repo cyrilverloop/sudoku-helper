@@ -1,6 +1,6 @@
 import { assert, suite, test } from 'vitest';
 import { mount } from '@vue/test-utils';
-import Index from '../pages/index.vue';
+import Index from '../app/app.vue';
 
 suite('The home page', () => {
 
@@ -8,34 +8,34 @@ suite('The home page', () => {
 
         test('has a 9x9 empty table', () => {
             const page = mount(Index);
-    
+
             const tableNode = page.find('table');
             const trNodes = tableNode.findAll('tr');
-    
+
             assert.strictEqual(trNodes.length, 9);
-    
+
             for(const trNode of trNodes) {
                 const tdNodes = trNode.findAll('td');
-    
+
                 assert.strictEqual(tdNodes.length, 9);
-    
+
                 for(const tdNode of tdNodes) {
                     assert.strictEqual(tdNode.text(), '');
                 }
             }
         });
-    
+
         test('has no selected square', () => {
             const page = mount(Index);
             const selectedNodes = page.findAll('.bg-blue');
-    
+
             assert.strictEqual(selectedNodes.length, 0);
         });
-    
+
         test('has no square type selection nor digit selection', () => {
             const page = mount(Index);
             const rowClassNodes = page.findAll('.row');
-    
+
             assert.strictEqual(rowClassNodes.length, 1);
         });
     });

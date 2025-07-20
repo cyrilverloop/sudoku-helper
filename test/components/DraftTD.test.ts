@@ -1,6 +1,6 @@
 import { afterEach, assert, suite, test } from 'vitest';
 import { enableAutoUnmount, mount } from '@vue/test-utils';
-import DraftTD from "../components/DraftTD.vue";
+import DraftTD from "../../app/components/DraftTD.vue";
 
 suite('The DraftTD component', () => {
     enableAutoUnmount(afterEach);
@@ -27,7 +27,7 @@ suite('The DraftTD component', () => {
         });
 
         const liNodes = component.findAll('li');
-        
+
         for(const liNode of liNodes) {
             assert.isTrue(liNode.element.classList.contains('text-gray'));
         }

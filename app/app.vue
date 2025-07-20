@@ -1,9 +1,9 @@
 <script setup lang="ts">
-    import AnswerSquare from "../types/AnswerSquare";
-    import DraftSquare from "../types/DraftSquare";
-    import EmptySquare from "../types/EmptySquare";
-    import FilledSquare from "../types/FilledSquare";
-    import Square from "../types/Square";
+    import AnswerSquare from "./types/AnswerSquare";
+    import DraftSquare from "./types/DraftSquare";
+    import EmptySquare from "./types/EmptySquare";
+    import FilledSquare from "./types/FilledSquare";
+    import Square from "./types/Square";
 
     const squares = ref<(AnswerSquare|DraftSquare|EmptySquare|FilledSquare)[][]>([]);
 

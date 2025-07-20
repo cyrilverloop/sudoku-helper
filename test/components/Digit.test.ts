@@ -1,6 +1,6 @@
 import { afterEach, assert, suite, test } from 'vitest';
 import { enableAutoUnmount, mount } from '@vue/test-utils';
-import Digit from "../components/Digit.vue";
+import Digit from "../../app/components/Digit.vue";
 
 suite('In the Digit component, you can', () => {
     enableAutoUnmount(afterEach);
