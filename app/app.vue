@@ -8,14 +8,38 @@
     const squares = ref<(AnswerSquare|DraftSquare|EmptySquare|FilledSquare)[][]>([]);
 
     for(let row = 1; row < 10; row++) {
-        squares.value[row] = [];
+        let currentRow = [];
 
         for(let column = 1; column < 10; column++) {
-            squares.value[row][column] = new EmptySquare(row, column);
+            currentRow[column] = new EmptySquare(row, column);
         }
+
+        squares.value[row] = currentRow;
     }
 
     const selectedSquare = ref<AnswerSquare|DraftSquare|EmptySquare|FilledSquare|null>(null);
+
+    /**
+     * Returns the square at [row, column].
+     * @param row the row.
+     * @param column the column.
+     * @throws {Error} if there is no square at [row, column].
+     * @returns AnswerSquare|DraftSquare|EmptySquare|FilledSquare the square.
+     */
+    function getSquare(
+        row: number,
+        column: number
+    ): AnswerSquare|DraftSquare|EmptySquare|FilledSquare {
+
+        if(
+            squares.value[row] === undefined ||
+            squares.value[row][column] === undefined
+        ) {
+            throw new Error("The square does not exist !");
+        }
+
+        return squares.value[row][column];
+    }
 
     /**
      * Toggles the selected square.
@@ -35,17 +59,25 @@
             selectedSquare.value = null;
         }
         else {
-            selectedSquare.value = squares.value[row][column];
+            selectedSquare.value = getSquare(row, column);
         }
     }
 
     /**
      * Changes the square type.
      * @param {Event} event - the event.
+     * @throws {Error} if the coordinates do not correspond to a square.
      */
     function changeSquareType(event: any): void {
         const row = (selectedSquare.value as Square).row;
         const column = (selectedSquare.value as Square).column;
+
+        if(
+            squares.value[row] === undefined ||
+            squares.value[row][column] === undefined
+        ) {
+            throw new Error("The square does not exist !");
+        }
 
         switch(event.target.value) {
             case EmptySquare.name:
@@ -89,18 +121,18 @@
                             @click="toggleSelectedSquare"
                             >
                             <span
-                                v-if="(squares[row][column] instanceof AnswerSquare) === true || (squares[row][column] instanceof FilledSquare) === true"
+                                v-if="(getSquare(row, column) instanceof AnswerSquare) === true || (getSquare(row, column) instanceof FilledSquare) === true"
                                 class="fs-1"
                                 :class="{
-                                    'fw-bold text-black': (squares[row][column] instanceof FilledSquare) === true,
-                                    'text-blue': (squares[row][column] instanceof AnswerSquare) === true
+                                    'fw-bold text-black': (getSquare(row, column) instanceof FilledSquare) === true,
+                                    'text-blue': (getSquare(row, column) instanceof AnswerSquare) === true
                                 }">
-                                {{ (squares[row][column] as AnswerSquare|FilledSquare).value }}
+                                {{ (getSquare(row, column) as AnswerSquare|FilledSquare).value }}
                             </span>
 
                             <DraftTD
-                                v-else-if="(squares[row][column] instanceof DraftSquare) === true"
-                                :digits="(squares[row][column] as DraftSquare).digits"
+                                v-else-if="(getSquare(row, column) instanceof DraftSquare) === true"
+                                :digits="(getSquare(row, column) as DraftSquare).digits"
                                 />
                         </td>
                     </tr>
