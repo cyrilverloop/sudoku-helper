@@ -10,8 +10,8 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "test": "vitest",
-    "coverage": "vitest run --coverage"
+    "test": "vitest -c ./ci/vitest.config.ts",
+    "coverage": "npm test -- run --coverage"
   },
   "devDependencies": {
     "@nuxt/devtools": "^2.0.0",
