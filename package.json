@@ -1,33 +1,33 @@
 {
-  "name": "sudoku-helper",
-  "description": "A project to help you solve Sudokus.",
-  "license": "MIT",
-  "type": "module",
-  "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev",
-    "dev-tls": "nuxt dev --https --ssl-cert ./tls/server.crt --ssl-key ./tls/server.key",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
-    "test": "vitest -c ./ci/vitest.config.ts",
-    "coverage": "npm test -- run --coverage"
-  },
-  "devDependencies": {
-    "@nuxt/devtools": "^2.0.0",
-    "@nuxt/test-utils": "^3.15.4",
-    "@types/bootstrap": "^5.2.9",
-    "@vitest/coverage-v8": "^3.0.4",
-    "@vue/test-utils": "^2.4.4",
-    "happy-dom": "^18.0.1",
-    "nuxt": "^4.1.1",
-    "typescript": "^5.2.2",
-    "vitest": "^3.0.4",
-    "vue": "^3.3.8",
-    "vue-router": "^4.2.5",
-    "vue-tsc": "^3.0.3"
-  },
-  "dependencies": {
-    "bootstrap": "^5.3.2"
-  }
+    "name": "sudoku-helper",
+    "description": "A project to help you solve Sudokus.",
+    "license": "MIT",
+    "type": "module",
+    "scripts": {
+        "build": "nuxt build",
+        "dev": "nuxt dev",
+        "dev-tls": "nuxt dev --https --ssl-cert ./tls/server.crt --ssl-key ./tls/server.key",
+        "generate": "nuxt generate",
+        "preview": "nuxt preview",
+        "postinstall": "nuxt prepare",
+        "test": "vitest -c ./ci/vitest.config.ts",
+        "coverage": "npm test -- run --coverage"
+    },
+    "devDependencies": {
+        "@nuxt/devtools": "^2.0.0",
+        "@nuxt/test-utils": "^3.15.4",
+        "@types/bootstrap": "^5.2.9",
+        "@vitest/coverage-v8": "^3.0.4",
+        "@vue/test-utils": "^2.4.4",
+        "happy-dom": "^18.0.1",
+        "nuxt": "^4.1.1",
+        "typescript": "^5.2.2",
+        "vitest": "^3.0.4",
+        "vue": "^3.3.8",
+        "vue-router": "^4.2.5",
+        "vue-tsc": "^3.0.3"
+    },
+    "dependencies": {
+        "bootstrap": "^5.3.2"
+    }
 }
