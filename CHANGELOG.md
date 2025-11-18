@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Renaming `docker-compose.yml` to `compose.yaml` and `docker-compose.override.yml` to `compose.override.yaml`.
+- Replacing Bootstrap by Nuxt UI.
 
 ## [1.0.0] - 2023-12-05
 ### Added
