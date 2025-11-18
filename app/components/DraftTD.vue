@@ -1,21 +1,35 @@
 <script setup lang="ts">
-    defineProps<{
+    const {
+        digits = []
+    } = defineProps<{
         digits: number[]
     }>();
 </script>
 
 <template>
-    <ul class="list-inline mb-0">
-        <li
-            v-for="digit in digits"
-            class="text-gray list-inline-item me-1">
-            {{ digit }}
-        </li>
-    </ul>
+    <table
+        class="m-auto"
+    >
+        <tbody>
+            <tr
+                v-for="row in 3"
+            >
+                <td
+                    v-for="column in 3"
+                    class="text-gray-400 text-xs px-1"
+                >
+                    <template
+                        v-if="digits.includes(((row - 1) * 3) + column) === true"
+                    >
+                        {{ ((row - 1) * 3) + column }}
+                    </template>
+                    <template
+                        v-else
+                    >
+                        &nbsp;&nbsp;
+                    </template>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </template>
-
-<style scoped>
-    .text-gray {
-        color: gray;
-    }
-</style>

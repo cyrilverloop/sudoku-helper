@@ -1,76 +1,118 @@
 <script setup lang="ts">
-    import AnswerSquare from "./types/AnswerSquare";
-    import DraftSquare from "./types/DraftSquare";
-    import EmptySquare from "./types/EmptySquare";
-    import FilledSquare from "./types/FilledSquare";
-    import Square from "./types/Square";
+    import AnswerSquare from "~/types/AnswerSquare";
+    import DraftSquare from "~/types/DraftSquare";
+    import FilledSquare from "~/types/FilledSquare";
+    import OneValueSquare from "~/types/OneValueSquare";
+    import Square from "~/types/Square";
+    import SquareType from "~/types/SquareType";
+    import type { CheckboxGroupItem, RadioGroupItem, RadioGroupValue } from '@nuxt/ui';
 
-    const squares = ref<(AnswerSquare|DraftSquare|EmptySquare|FilledSquare)[][]>([]);
+    const squares = ref<(Square)[][]>([]);
 
     for(let row = 1; row < 10; row++) {
         let currentRow = [];
 
         for(let column = 1; column < 10; column++) {
-            currentRow[column] = new EmptySquare(row, column);
+            currentRow[column] = new Square(row, column);
         }
 
         squares.value[row] = currentRow;
     }
 
-    const selectedSquare = ref<AnswerSquare|DraftSquare|EmptySquare|FilledSquare|null>(null);
+    const selectedSquare = ref<Square|null>(null);
 
     /**
-     * Returns the square at [row, column].
+     * Selects a square.
      * @param row the row.
      * @param column the column.
-     * @throws {Error} if there is no square at [row, column].
-     * @returns AnswerSquare|DraftSquare|EmptySquare|FilledSquare the square.
      */
-    function getSquare(
+    function selectSquare(
         row: number,
         column: number
-    ): AnswerSquare|DraftSquare|EmptySquare|FilledSquare {
-
-        if(
-            squares.value[row] === undefined ||
-            squares.value[row][column] === undefined
-        ) {
-            throw new Error("The square does not exist !");
-        }
-
-        return squares.value[row][column];
+    ): void {
+        selectedSquare.value = getSquare(squares.value, row, column);
+        squareTypeValue.value = checkedType.value;
+        digitValue.value = "" + selectedDigitValue.value;
+        draftValues.value = selectedDraftValues.value;
     }
 
     /**
-     * Toggles the selected square.
-     * @param {Event} event - the event.
+     * Deselects a square.
      */
-    function toggleSelectedSquare(event: any): void {
-        let square = event.target.closest(".square");
-
-        const row: number = parseInt(square.dataset.row);
-        const column: number = parseInt(square.dataset.column);
-
-        if(
-            selectedSquare.value !== null
-            && selectedSquare.value.row === row
-            && selectedSquare.value.column === column
-        ) {
-            selectedSquare.value = null;
-        }
-        else {
-            selectedSquare.value = getSquare(row, column);
-        }
+    function deselectSquare(): void {
+        selectedSquare.value = null;
+        squareTypeValue.value = null;
+        digitValue.value = null;
+        draftValues.value = [];
     }
+
+    // Square type selector :
+    const squareTypeItems = ref<RadioGroupItem[]>([
+        SquareType.empty,
+        SquareType.draft,
+        SquareType.answer,
+        SquareType.filled
+    ]);
+
+    const checkedType = computed((): SquareType|null => {
+
+        if(selectedSquare.value === null) {
+            return null;
+        }
+
+        const selectedSquareType: string = Object.getPrototypeOf(selectedSquare.value).constructor.name;
+
+        switch(selectedSquareType.split("Square")[0]) {
+            case SquareType.answer:
+                return SquareType.answer;
+
+            case SquareType.draft:
+                return SquareType.draft;
+
+            case "":
+                return SquareType.empty;
+
+            case SquareType.filled:
+                return SquareType.filled;
+        }
+
+        throw new Error("The square type does not exist.");
+    });
+    const squareTypeValue = ref<RadioGroupValue>(null);
 
     /**
      * Changes the square type.
-     * @param {Event} event - the event.
+     * @throws {Error} if there is no selected square.
      * @throws {Error} if the coordinates do not correspond to a square.
      */
-    function changeSquareType(event: any): void {
-        const row = (selectedSquare.value as Square).row;
-        const column = (selectedSquare.value as Square).column;
+    function changeSquareType(): void {
+
+        if(selectedSquare.value === null) {
+            throw new Error("There is no selected square.");
+        }
+
+        const row = selectedSquare.value.row;
+        const column = selectedSquare.value.column;
+
+        switch(squareTypeValue.value) {
+            case SquareType.empty:
+                selectedSquare.value = new Square(row, column);
+                break;
+
+            case SquareType.draft:
+                selectedSquare.value = new DraftSquare(row, column);
+                break;
+
+            case SquareType.answer:
+                selectedSquare.value = new AnswerSquare(row, column);
+                break;
+
+            case SquareType.filled:
+                selectedSquare.value = new FilledSquare(row, column);
+        }
+
+        digitValue.value = null;
+        draftValues.value = [];
 
         if(
             squares.value[row] === undefined ||
@@ -79,169 +121,158 @@
             throw new Error("The square does not exist !");
         }
 
-        switch(event.target.value) {
-            case EmptySquare.name:
-                squares.value[row][column] = new EmptySquare(row, column);
-                break;
+        squares.value[row][column] = selectedSquare.value;
+    }
 
-            case DraftSquare.name:
-                squares.value[row][column] = new DraftSquare(row, column);
-                break;
 
-            case AnswerSquare.name:
-                squares.value[row][column] = new AnswerSquare(row, column);
-                break;
+    // One value selector :
+    const oneValueItems = ref<RadioGroupItem[]>([
+        1, 2, 3, 4, 5, 6, 7, 8, 9
+    ]);
+    const selectedDigitValue = computed((): number|null => {
 
-            case FilledSquare.name:
-                squares.value[row][column] = new FilledSquare(row, column);
+        if(
+            selectedSquare.value === null
+            || (selectedSquare.value instanceof OneValueSquare) === false
+        ) {
+            return null;
         }
 
-        selectedSquare.value = squares.value[row][column];
+        return selectedSquare.value.value;
+    });
+    const digitValue = ref<RadioGroupValue>(null);
+
+    const hasOneValue = computed((): boolean => {
+
+        if(
+            selectedSquare.value === null
+            || ((selectedSquare.value instanceof AnswerSquare) === false
+            && (selectedSquare.value instanceof FilledSquare) === false)
+        ) {
+            return false;
+        }
+
+        return true;
+    });
+
+    /**
+     * Changes the digit value.
+     * @throws Error when there is no selected square.
+     */
+    function changeDigitValue(): void {
+
+        if(selectedSquare.value === null) {
+            throw new Error("There is no selected square.");
+        }
+
+        (selectedSquare.value as OneValueSquare).value = parseInt(digitValue.value as string);
+    }
+
+
+    // Draft selector :
+    const draftItems = ref<CheckboxGroupItem[]>([
+        1, 2, 3, 4, 5, 6, 7, 8, 9
+    ]);
+    const selectedDraftValues = computed((): string[] => {
+
+        if(
+            selectedSquare.value === null
+            || (selectedSquare.value instanceof DraftSquare) === false
+        ) {
+            return [];
+        }
+
+        const selectedValues: string[] = [];
+
+        for(const value of selectedSquare.value.digits) {
+            selectedValues.push((value  as number).toString());
+        }
+
+        return selectedValues;
+    });
+    const draftValues = ref<RadioGroupValue[]>([]);
+
+    const hasManyValues = computed((): boolean => {
+
+        if(
+            selectedSquare.value === null
+            || (selectedSquare.value instanceof DraftSquare) === false
+        ) {
+            return false;
+        }
+
+        return true;
+    });
+
+    /**
+     * Changes the draft values.
+     * @throws Error when there is no draft square selected.
+     */
+    function changeDraftValues(): void {
+
+        if(
+            selectedSquare.value === null
+            || (selectedSquare.value instanceof DraftSquare) === false
+
+        ) {
+            throw new Error("There is no draft square selected.");
+        }
+
+        const newSelectedValues: number[] = [];
+
+        for(const value of draftValues.value) {
+            newSelectedValues.push(parseInt(value as string));
+        }
+
+        selectedSquare.value.digits = newSelectedValues;
     }
 </script>
 
 <template>
-    <section class="container pt-3">
-        <div class="row ">
-            <div class="col d-flex justify-content-center">
-                <table class="border-black">
-                    <tr v-for="row in 9">
-                        <td v-for="column in 9"
-                            class="text-center square"
-                            :class="{
-                                'border-right-grey': (column % 3 !== 0) && column !== 9,
-                                'border-bottom-grey': (row % 3 !== 0) && row !== 9,
-                                'border-right-black': (column % 3 === 0) && column !== 9,
-                                'border-bottom-black': (row % 3 === 0) && row !== 9,
-                                'bg-blue': selectedSquare !== null && (selectedSquare.row === row || selectedSquare.column === column)
-                            }"
-                            :id="`square-${row}-${column}`"
-                            :data-row="row"
-                            :data-column="column"
-                            @click="toggleSelectedSquare"
-                            >
-                            <span
-                                v-if="(getSquare(row, column) instanceof AnswerSquare) === true || (getSquare(row, column) instanceof FilledSquare) === true"
-                                class="fs-1"
-                                :class="{
-                                    'fw-bold text-black': (getSquare(row, column) instanceof FilledSquare) === true,
-                                    'text-blue': (getSquare(row, column) instanceof AnswerSquare) === true
-                                }">
-                                {{ (getSquare(row, column) as AnswerSquare|FilledSquare).value }}
-                            </span>
+    <UApp>
+        <Table
+            :selected-square="selectedSquare"
+            :squares="squares"
+            @deselect-square="deselectSquare"
+            @select-square="selectSquare"
+        />
 
-                            <DraftTD
-                                v-else-if="(getSquare(row, column) instanceof DraftSquare) === true"
-                                :digits="(getSquare(row, column) as DraftSquare).digits"
-                                />
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </div>
+        <URadioGroup
+            v-if="selectedSquare !== null"
+            :items="squareTypeItems"
+            v-model="squareTypeValue"
+            @change="changeSquareType"
+            class="m-auto mt-3 w-84"
+            id="square-type-selector"
+            indicator="hidden"
+            orientation="horizontal"
+            size="xl"
+            variant="table"
+        />
 
-        <div class="row mt-3" v-if="selectedSquare !== null">
-            <div class="col d-flex justify-content-center">
-                <div class="btn-group btn-group-lg" role="group" aria-label="Choice of type of square." @input="changeSquareType">
-
-                    <input type="radio" class="btn-check" autocomplete="off" name="square-type"
-                        :id="`square-${EmptySquare.name}`"
-                        :value="EmptySquare.name"
-                        :checked="(selectedSquare instanceof EmptySquare) === true">
-                    <label class="btn btn-outline-primary fs-2"
-                        :for="`square-${EmptySquare.name}`">
-                        empty
-                    </label>
-
-                    <input type="radio" class="btn-check" autocomplete="off" name="square-type"
-                        :id="`square-${DraftSquare.name}`"
-                        :value="DraftSquare.name"
-                        :checked="(selectedSquare instanceof DraftSquare) === true">
-                    <label class="btn btn-outline-primary fs-2"
-                        :for="`square-${DraftSquare.name}`">
-                        draft
-                    </label>
-
-                    <input type="radio" class="btn-check" autocomplete="off" name="square-type"
-                        :id="`square-${AnswerSquare.name}`"
-                        :value="AnswerSquare.name"
-                        :checked="(selectedSquare instanceof AnswerSquare) === true">
-                    <label class="btn btn-outline-primary fs-2"
-                        :for="`square-${AnswerSquare.name}`">
-                        answer
-                    </label>
-
-                    <input type="radio" class="btn-check" autocomplete="off" name="square-type"
-                        :id="`square-${FilledSquare.name}`"
-                        :value="FilledSquare.name"
-                        :checked="(selectedSquare instanceof FilledSquare) === true">
-                    <label class="btn btn-outline-primary fs-2"
-                        :for="`square-${FilledSquare.name}`">
-                        filled
-                    </label>
-
-                </div>
-            </div>
-        </div>
-
-        <div class="row mt-3" v-if="selectedSquare !== null && (selectedSquare instanceof EmptySquare) === false">
-            <div class="col d-flex justify-content-center">
-                <div class="btn-group btn-group-lg" role="group" aria-label="Choice of digit.">
-
-                    <Digit v-for="digit in 9"
-                        :digit="digit">
-                        <input type="radio" class="btn-check" name="digit-answer" autocomplete="off"
-                            v-if="(selectedSquare instanceof AnswerSquare) === true || (selectedSquare instanceof FilledSquare) === true"
-                            :id="`digit-${digit}`"
-                            v-model="selectedSquare.value"
-                            :value="digit"
-                            />
-
-                        <input type="checkbox" class="btn-check" autocomplete="off"
-                            v-if="(selectedSquare instanceof DraftSquare) === true"
-                            v-model="selectedSquare.digits[digit]"
-                            :id="`digit-${digit}`"
-                            :true-value="digit"
-                            :false-value="null"
-                            />
-                    </Digit>
-
-                </div>
-            </div>
-        </div>
-    </section>
+        <URadioGroup
+            v-if="hasOneValue"
+            :items="oneValueItems"
+            v-model="digitValue"
+            @change="changeDigitValue"
+            class="m-auto mt-3 w-105"
+            id="digit-selector"
+            indicator="hidden"
+            orientation="horizontal"
+            size="xl"
+            variant="table"
+        />
+        <UCheckboxGroup
+            v-else-if="hasManyValues"
+            :items="draftItems"
+            v-model="draftValues"
+            @change="changeDraftValues"
+            class="m-auto mt-3 w-105"
+            id="draft-selector"
+            indicator="hidden"
+            orientation="horizontal"
+            size="xl"
+            variant="table"
+        />
+    </UApp>
 </template>
-
-<style scoped>
-    .square {
-        height: 70px;
-        width: 70px;
-    }
-
-    .border-black {
-        border: 5px solid black;
-    }
-
-    .border-right-black {
-        border-right: 3px solid black;
-    }
-
-    .border-right-grey {
-        border-right: 1px solid grey;
-    }
-
-    .border-bottom-black {
-        border-bottom: 3px solid black;
-    }
-
-    .border-bottom-grey {
-        border-bottom: 1px solid grey;
-    }
-
-    .text-blue {
-        color: rgb(56, 56, 191)    }
-
-    .bg-blue {
-        background-color: rgba(64, 247, 204, 0.447)
-    }
-</style>

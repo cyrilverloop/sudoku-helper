@@ -1,12 +1,12 @@
 services:
     app:
-        image: node:alpine
+        image: node:24-alpine
         volumes:
             - ./:/var/www/
         working_dir: /var/www/
 
     prod:
-        image: node:alpine
+        image: node:24-alpine
         profiles:
             - prod
         volumes:

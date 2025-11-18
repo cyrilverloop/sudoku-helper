@@ -1,301 +1,686 @@
-import { assert, suite, test } from 'vitest';
-import { mount } from '@vue/test-utils';
-import Index from '../app/app.vue';
+import { assert, suite, test } from "vitest";
+import { mount } from "@vue/test-utils";
+import App from "../app/app.vue";
 
-suite('The home page', () => {
+suite("The app", (): void => {
 
-    suite('once loaded', () => {
+    suite("by default", (): void => {
 
-        test('has a 9x9 empty table', () => {
-            const page = mount(Index);
+        test("shows an empty grid", (): void => {
+            const app = mount(App);
 
-            const tableNode = page.find('table');
-            const trNodes = tableNode.findAll('tr');
+            const tableNodes = app.findAll('table');
 
-            assert.strictEqual(trNodes.length, 9);
+            assert.lengthOf(tableNodes, 1);
 
-            for(const trNode of trNodes) {
-                const tdNodes = trNode.findAll('td');
+            const tableNode = tableNodes[0];
 
-                assert.strictEqual(tdNodes.length, 9);
-
-                for(const tdNode of tdNodes) {
-                    assert.strictEqual(tdNode.text(), '');
-                }
-            }
+            assert.isEmpty(tableNode.text());
         });
 
-        test('has no selected square', () => {
-            const page = mount(Index);
-            const selectedNodes = page.findAll('.bg-blue');
+        test("hides the square type selector", (): void => {
+            const app = mount(App);
 
-            assert.strictEqual(selectedNodes.length, 0);
+            const squareTypeSelectorNode = app.find('#square-type-selector');
+
+            assert.isFalse(squareTypeSelectorNode.exists());
         });
 
-        test('has no square type selection nor digit selection', () => {
-            const page = mount(Index);
-            const rowClassNodes = page.findAll('.row');
+        test("hides the digit selector", (): void => {
+            const app = mount(App);
 
-            assert.strictEqual(rowClassNodes.length, 1);
+            const digitSelectorNode = app.find('#digit-selector');
+
+            assert.isFalse(digitSelectorNode.exists());
+        });
+
+        test("hides the draft selector", (): void => {
+            const app = mount(App);
+
+            const digitsSelectorNode = app.find('#draft-selector');
+
+            assert.isFalse(digitsSelectorNode.exists());
         });
     });
 
+    suite("can have a number from 1 to 9 in", (): void => {
 
-    suite('interaction', async () => {
+        test("an answer square", async (): Promise<void> => {
+            const app = mount(App);
+            const tdNodes = app.findAll('table td');
+            const firstSquare = tdNodes[0];
+            await firstSquare.trigger("click");
 
-        test('can highlight the row and column of a selected square', async () => {
-            const page = mount(Index);
-            const squareNode = page.find('td');
-            const trNodes = page.findAll('tr');
-            const rowTDNodes = trNodes[0].findAll('td');
+            const answerButton = app.find('#square-type-selector button[value="Answer"]');
+            await answerButton.trigger("click");
 
-            // Row must not be highlighted :
-            for(const tdNode of rowTDNodes) {
-                assert.isFalse(tdNode.element.classList.contains('bg-blue'));
-            }
+            for(let digitIndex = 1; digitIndex < 10; digitIndex++) {
+                const digitNode = app.find('#digit-selector button[value="' + digitIndex + '"]');
+                await digitNode.trigger("click");
 
-            // Column must not be highlighted :
-            for(const trNode of trNodes) {
-                const tdNode = trNode.find('td');
-
-                assert.isFalse(tdNode.element.classList.contains('bg-blue'));
-            }
-
-            await squareNode.trigger('click');
-
-            // Row must be highlighted :
-            for(const tdNode of rowTDNodes) {
-                assert.isTrue(tdNode.element.classList.contains('bg-blue'));
-            }
-
-            // Column must be highlighted :
-            for(const trNode of trNodes) {
-                const tdNode = trNode.find('td');
-
-                assert.isTrue(tdNode.element.classList.contains('bg-blue'));
-            }
-        });
-
-        test('can remove highlight from the row and column of a selected square', async () => {
-            const page = mount(Index);
-            const squareNode = page.find('td');
-            const trNodes = page.findAll('tr');
-            const rowTDNodes = trNodes[0].findAll('td');
-
-            await squareNode.trigger('click');
-
-            // Row must be highlighted :
-            for(const tdNode of rowTDNodes) {
-                assert.isTrue(tdNode.element.classList.contains('bg-blue'));
-            }
-
-            // Column must be highlighted :
-            for(const trNode of trNodes) {
-                const tdNode = trNode.find('td');
-
-                assert.isTrue(tdNode.element.classList.contains('bg-blue'));
-            }
-
-            await squareNode.trigger('click');
-
-            // Row must not be highlighted :
-            for(const tdNode of rowTDNodes) {
-                assert.isFalse(tdNode.element.classList.contains('bg-blue'));
-            }
-
-            // Column must not be highlighted :
-            for(const trNode of trNodes) {
-                const tdNode = trNode.find('td');
-
-                assert.isFalse(tdNode.element.classList.contains('bg-blue'));
-            }
-        });
-
-
-        test('can select an empty square', async () => {
-            const page = mount(Index);
-            const tdNode = page.find('td');
-
-            assert.isFalse(tdNode.element.classList.contains('bg-blue'));
-
-            await tdNode.trigger('click');
-
-            assert.isTrue(tdNode.element.classList.contains('bg-blue'));
-
-            const rowClassNodes = page.findAll('.row');
-
-            assert.strictEqual(rowClassNodes.length, 2);
-
-            const squareTypeRadio = page.find('[name="square-type"]');
-
-            assert.strictEqual(squareTypeRadio.attributes('value'), 'EmptySquare');
-        });
-
-        test('can deselect an emty square', async () => {
-            const page = mount(Index);
-            const tdNode = page.find('td');
-
-            await tdNode.trigger('click');
-
-            assert.isTrue(tdNode.element.classList.contains('bg-blue'));
-
-            await tdNode.trigger('click');
-
-            assert.isFalse(tdNode.element.classList.contains('bg-blue'));
-
-            const rowClassNodes = page.findAll('.row');
-
-            assert.strictEqual(rowClassNodes.length, 1);
-        });
-
-
-        test('can change an Empty square to an Answer square', async () => {
-            const page = mount(Index, {
-                attachTo: 'body',
-            });
-            const tdNode = page.find('td');
-
-            assert.isFalse(tdNode.element.classList.contains('bg-blue'));
-
-            await tdNode.trigger('click');
-
-            assert.isTrue(tdNode.element.classList.contains('bg-blue'));
-
-            let rowClassNodes = page.findAll('.row');
-
-            assert.strictEqual(rowClassNodes.length, 2);
-
-            const answerSquareRadio = rowClassNodes[1].findAll('input')[2];
-
-            assert.isFalse(answerSquareRadio.element.checked);
-
-            const answerSquareLabel = rowClassNodes[1].find('[for="square-AnswerSquare"]');
-
-            await answerSquareLabel.trigger('click');
-
-            assert.strictEqual(tdNode.text(), '');
-            assert.isTrue(answerSquareRadio.element.checked);
-
-            rowClassNodes = page.findAll('.row');
-
-            assert.strictEqual(rowClassNodes.length, 3);
-
-            const digitInputRadio = rowClassNodes[2].findAll('input');
-
-            for(let inputIndex = 1; inputIndex < 10; inputIndex++) {
                 assert.strictEqual(
-                    digitInputRadio[inputIndex - 1].element.value,
-                    inputIndex.toString()
+                    firstSquare.text(),
+                    digitIndex + ""
                 );
-                assert.isFalse(digitInputRadio[inputIndex - 1].element.checked);
+
+                const digitNodes = app.findAll('#digit-selector button[data-state="checked"]');
+
+                assert.lengthOf(digitNodes, 1);
             }
-
-            await digitInputRadio[0].trigger('click');
-
-            assert.strictEqual(tdNode.text(), '1');
-            assert.isTrue(digitInputRadio[0].element.checked);
-
-            page.unmount();
         });
 
-        test('can change an Empty square to a Filled square', async () => {
-            const page = mount(Index, {
-                attachTo: 'body',
-            });
-            const tdNode = page.find('td');
+        test("a filled square", async (): Promise<void> => {
+            const app = mount(App);
+            const tdNodes = app.findAll('table td');
+            const firstSquare = tdNodes[0];
+            await firstSquare.trigger("click");
 
-            assert.isFalse(tdNode.element.classList.contains('bg-blue'));
+            const filledButton = app.find('#square-type-selector button[value="Filled"]');
+            await filledButton.trigger("click");
 
-            await tdNode.trigger('click');
+            for(let digitIndex = 1; digitIndex < 10; digitIndex++) {
+                const digitNode = app.find('#digit-selector button[value="' + digitIndex + '"]');
+                await digitNode.trigger("click");
 
-            assert.isTrue(tdNode.element.classList.contains('bg-blue'));
-
-            let rowClassNodes = page.findAll('.row');
-
-            assert.strictEqual(rowClassNodes.length, 2);
-
-            const filledSquareRadio = rowClassNodes[1].findAll('input')[3];
-
-            assert.isFalse(filledSquareRadio.element.checked);
-
-            const filledSquareLabel = rowClassNodes[1].find('[for="square-FilledSquare"]');
-
-            await filledSquareLabel.trigger('click');
-
-            assert.strictEqual(tdNode.text(), '');
-            assert.isTrue(filledSquareRadio.element.checked);
-
-            rowClassNodes = page.findAll('.row');
-
-            assert.strictEqual(rowClassNodes.length, 3);
-
-            const digitInputRadio = rowClassNodes[2].findAll('input');
-
-            for(let inputIndex = 1; inputIndex < 10; inputIndex++) {
                 assert.strictEqual(
-                    digitInputRadio[inputIndex - 1].element.value,
-                    inputIndex.toString()
+                    firstSquare.text(),
+                    digitIndex + ""
                 );
-                assert.isFalse(digitInputRadio[inputIndex - 1].element.checked);
+
+                const digitNodes = app.findAll('#digit-selector button[data-state="checked"]');
+
+                assert.lengthOf(digitNodes, 1);
             }
+        });
+    });
 
-            await digitInputRadio[0].trigger('click');
+    suite("can have in a draft square", (): void => {
 
-            assert.strictEqual(tdNode.text(), '1');
-            assert.isTrue(digitInputRadio[0].element.checked);
+        test("a number from 1 to 9", async (): Promise<void> => {
+            const app = mount(App);
+            const tdNodes = app.findAll('table td');
+            const firstSquare = tdNodes[0];
+            await firstSquare.trigger("click");
 
-            page.unmount();
+            const draftButton = app.find('#square-type-selector button[value="Draft"]');
+            await draftButton.trigger("click");
+
+            const labelNodes = app.findAll('#draft-selector label');
+
+            for(const labelNode of labelNodes) {
+                const button = labelNode.find('button');
+
+                assert.strictEqual(button.attributes("data-state"), "unchecked");
+
+                await labelNode.trigger("click");
+
+                assert.strictEqual(button.attributes("data-state"), "checked");
+
+                let buttonNodes = app.findAll('#draft-selector button[data-state="checked"]');
+
+                assert.lengthOf(buttonNodes, 1);
+                assert.strictEqual(
+                    firstSquare.text(),
+                    labelNode.text()
+                );
+
+                await labelNode.trigger("click");
+
+                buttonNodes = app.findAll('#draft-selector button[data-state="checked"]');
+
+                assert.lengthOf(buttonNodes, 0);
+            }
         });
 
-        test('can change an Empty square to a Draft square', async () => {
-            const page = mount(Index, {
-                attachTo: 'body',
-            });
-            const tdNode = page.find('td');
+        test("many numbers", async (): Promise<void> => {
+            const app = mount(App);
+            const tdNodes = app.findAll('table td');
+            const firstSquare = tdNodes[0];
+            await firstSquare.trigger("click");
 
-            assert.isFalse(tdNode.element.classList.contains('bg-blue'));
+            const draftButton = app.find('#square-type-selector button[value="Draft"]');
+            await draftButton.trigger("click");
 
-            await tdNode.trigger('click');
+            const labelNodes = app.findAll('#draft-selector label');
 
-            assert.isTrue(tdNode.element.classList.contains('bg-blue'));
+            const button0Node = labelNodes[0].get('button');
+            const button1Node = labelNodes[1].get('button');
 
-            let rowClassNodes = page.findAll('.row');
+            assert.strictEqual(
+                button0Node.attributes("data-state"),
+                "unchecked"
+            );
+            assert.strictEqual(
+                button1Node.attributes("data-state"),
+                "unchecked"
+            );
 
-            assert.strictEqual(rowClassNodes.length, 2);
+            await labelNodes[0].trigger("click");
+            await labelNodes[1].trigger("click");
 
-            const filledSquareRadio = rowClassNodes[1].findAll('input')[1];
+            assert.strictEqual(
+                button0Node.attributes("data-state"),
+                "checked"
+            );
+            assert.strictEqual(
+                button1Node.attributes("data-state"),
+                "checked"
+            );
 
-            assert.isFalse(filledSquareRadio.element.checked);
+            const buttonNodes = app.findAll('#draft-selector button[data-state="checked"]');
 
-            const filledSquareLabel = rowClassNodes[1].find('[for="square-DraftSquare"]');
+            assert.lengthOf(buttonNodes, 2);
+            assert.strictEqual(firstSquare.text(), "12");
+        });
 
-            await filledSquareLabel.trigger('click');
+        test("all numbers", async (): Promise<void> => {
+            const app = mount(App);
+            const tdNodes = app.findAll('table td');
+            const firstSquare = tdNodes[0];
+            await firstSquare.trigger("click");
 
-            assert.strictEqual(tdNode.text(), '');
-            assert.isTrue(filledSquareRadio.element.checked);
+            const draftButton = app.find('#square-type-selector button[value="Draft"]');
+            await draftButton.trigger("click");
 
-            rowClassNodes = page.findAll('.row');
+            const labelNodes = app.findAll('#draft-selector label');
+            let buttonNodes = app.findAll('#draft-selector button[data-state="unchecked"]');
 
-            assert.strictEqual(rowClassNodes.length, 3);
+            assert.lengthOf(buttonNodes, 9);
 
-            const digitInputRadio = rowClassNodes[2].findAll('input');
-
-            for(let inputIndex = 1; inputIndex < 10; inputIndex++) {
-                assert.strictEqual(
-                    digitInputRadio[inputIndex - 1].attributes('true-value'),
-                    inputIndex.toString()
-                );
-                assert.isFalse(digitInputRadio[inputIndex - 1].element.checked);
+            for(const labelNode of labelNodes) {
+                await labelNode.trigger("click");
             }
 
-            await digitInputRadio[0].trigger('click');
-            await digitInputRadio[1].trigger('click');
+            buttonNodes = app.findAll('#draft-selector button[data-state="checked"]');
 
-            assert.strictEqual(tdNode.text(), '12');
-            assert.isTrue(digitInputRadio[0].element.checked);
-            assert.isTrue(digitInputRadio[1].element.checked);
+            assert.lengthOf(buttonNodes, 9);
+            assert.strictEqual(firstSquare.text(), "123456789");
+        });
+    });
 
-            page.unmount();
+    suite("can change a square from", (): void => {
+
+        suite("answer to", (): void => {
+
+            test("draft", async (): Promise<void> => {
+                const app = mount(App);
+                const tdNodes = app.findAll('table td');
+                const firstSquare = tdNodes[0];
+                await firstSquare.trigger("click");
+
+                const squareTypeSelector = app.get('#square-type-selector');
+                const answerButton = squareTypeSelector.get('button[value="Answer"]');
+                await answerButton.trigger("click");
+
+                const labelNodes = app.findAll('#digit-selector label');
+                await labelNodes[0].trigger("click");
+
+                assert.strictEqual(firstSquare.text(), "1");
+
+                const draftButton = squareTypeSelector.get('button[value="Draft"]');
+                await draftButton.trigger("click");
+
+                assert.isEmpty(firstSquare.text());
+                assert.strictEqual(
+                    draftButton.attributes("data-state"),
+                    "checked"
+                );
+
+                const squareTypeButtons = squareTypeSelector.findAll('button[data-state="checked"]');
+
+                assert.lengthOf(squareTypeButtons, 1);
+
+                const digitSelector = app.find('#digit-selector');
+
+                assert.isFalse(digitSelector.exists());
+
+                const draftSelector = app.find('#draft-selector');
+
+                assert.isTrue(draftSelector.exists());
+
+                const draftButtons = draftSelector.findAll('button[data-state="checked"]');
+
+                assert.lengthOf(draftButtons, 0);
+            });
+
+            test("empty", async (): Promise<void> => {
+                const app = mount(App);
+                const tdNodes = app.findAll('table td');
+                const firstSquare = tdNodes[0];
+                await firstSquare.trigger("click");
+
+                const squareTypeSelector = app.get('#square-type-selector');
+                const answerButton = squareTypeSelector.get('button[value="Answer"]');
+                await answerButton.trigger("click");
+
+                const labelNodes = app.findAll('#digit-selector label');
+                await labelNodes[0].trigger("click");
+
+                assert.strictEqual(firstSquare.text(), "1");
+
+                const emptyButton = squareTypeSelector.get('button[value="Empty"]');
+                await emptyButton.trigger("click");
+
+                assert.isEmpty(firstSquare.text());
+                assert.strictEqual(
+                    emptyButton.attributes("data-state"),
+                    "checked"
+                );
+
+                const squareTypeButtons = squareTypeSelector.findAll('button[data-state="checked"]');
+
+                assert.lengthOf(squareTypeButtons, 1);
+
+                const digitSelector = app.find('#digit-selector');
+
+                assert.isFalse(digitSelector.exists());
+
+                const draftSelector = app.find('#draft-selector');
+
+                assert.isFalse(draftSelector.exists());
+            });
+
+            test("filled", async (): Promise<void> => {
+                const app = mount(App);
+                const tdNodes = app.findAll('table td');
+                const firstSquare = tdNodes[0];
+                await firstSquare.trigger("click");
+
+                const squareTypeSelector = app.get('#square-type-selector');
+                const answerButton = squareTypeSelector.get('button[value="Answer"]');
+                await answerButton.trigger("click");
+
+                const labelNodes = app.findAll('#digit-selector label');
+                await labelNodes[0].trigger("click");
+
+                assert.strictEqual(firstSquare.text(), "1");
+
+                const filledButton = squareTypeSelector.get('button[value="Filled"]');
+                await filledButton.trigger("click");
+
+                assert.isEmpty(firstSquare.text());
+                assert.strictEqual(
+                    filledButton.attributes("data-state"),
+                    "checked"
+                );
+
+                const squareTypeButtons = squareTypeSelector.findAll('button[data-state="checked"]');
+
+                assert.lengthOf(squareTypeButtons, 1);
+
+                const digitSelector = app.find('#digit-selector');
+
+                assert.isTrue(digitSelector.exists());
+
+                const digitButtons = digitSelector.findAll('button[data-state="checked"]');
+
+                assert.lengthOf(digitButtons, 0);
+
+                const draftSelector = app.find('#draft-selector');
+
+                assert.isFalse(draftSelector.exists());
+            });
+        });
+
+        suite("draft to", (): void => {
+
+            test("answer", async (): Promise<void> => {
+                const app = mount(App);
+                const tdNodes = app.findAll('table td');
+                const firstSquare = tdNodes[0];
+                await firstSquare.trigger("click");
+
+                const squareTypeSelector = app.get('#square-type-selector');
+                const draftButton = squareTypeSelector.get('button[value="Draft"]');
+                await draftButton.trigger("click");
+
+                const labelNodes = app.findAll('#draft-selector label');
+                await labelNodes[0].trigger("click");
+
+                assert.strictEqual(firstSquare.text(), "1");
+
+                const answerButton = squareTypeSelector.get('button[value="Answer"]');
+                await answerButton.trigger("click");
+
+                assert.isEmpty(firstSquare.text());
+                assert.strictEqual(
+                    answerButton.attributes("data-state"),
+                    "checked"
+                );
+
+                const squareTypeButtons = squareTypeSelector.findAll('button[data-state="checked"]');
+
+                assert.lengthOf(squareTypeButtons, 1);
+
+                const digitSelector = app.find('#digit-selector');
+
+                assert.isTrue(digitSelector.exists());
+
+                const digitButtons = digitSelector.findAll('button[data-state="checked"]');
+
+                assert.lengthOf(digitButtons, 0);
+
+                const draftSelector = app.find('#draft-selector');
+
+                assert.isFalse(draftSelector.exists());
+            });
+
+            test("empty", async (): Promise<void> => {
+                const app = mount(App);
+                const tdNodes = app.findAll('table td');
+                const firstSquare = tdNodes[0];
+                await firstSquare.trigger("click");
+
+                const squareTypeSelector = app.get('#square-type-selector');
+                const draftButton = squareTypeSelector.get('button[value="Draft"]');
+                await draftButton.trigger("click");
+
+                const labelNodes = app.findAll('#draft-selector label');
+                await labelNodes[0].trigger("click");
+
+                assert.strictEqual(firstSquare.text(), "1");
+
+                const emptyButton = squareTypeSelector.get('button[value="Empty"]');
+                await emptyButton.trigger("click");
+
+                assert.isEmpty(firstSquare.text());
+                assert.strictEqual(
+                    emptyButton.attributes("data-state"),
+                    "checked"
+                );
+
+                const squareTypeButtons = squareTypeSelector.findAll('button[data-state="checked"]');
+
+                assert.lengthOf(squareTypeButtons, 1);
+
+                const digitSelector = app.find('#digit-selector');
+
+                assert.isFalse(digitSelector.exists());
+
+                const draftSelector = app.find('#draft-selector');
+
+                assert.isFalse(draftSelector.exists());
+            });
+
+            test("filled", async (): Promise<void> => {
+                const app = mount(App);
+                const tdNodes = app.findAll('table td');
+                const firstSquare = tdNodes[0];
+                await firstSquare.trigger("click");
+
+                const squareTypeSelector = app.get('#square-type-selector');
+                const draftButton = squareTypeSelector.get('button[value="Draft"]');
+                await draftButton.trigger("click");
+
+                const labelNodes = app.findAll('#draft-selector label');
+                await labelNodes[0].trigger("click");
+
+                assert.strictEqual(firstSquare.text(), "1");
+
+                const filledButton = squareTypeSelector.get('button[value="Filled"]');
+                await filledButton.trigger("click");
+
+                assert.isEmpty(firstSquare.text());
+                assert.strictEqual(
+                    filledButton.attributes("data-state"),
+                    "checked"
+                );
+
+                const squareTypeButtons = squareTypeSelector.findAll('button[data-state="checked"]');
+
+                assert.lengthOf(squareTypeButtons, 1);
+
+                const digitSelector = app.find('#digit-selector');
+
+                assert.isTrue(digitSelector.exists());
+
+                const digitButtons = digitSelector.findAll('button[data-state="checked"]');
+
+                assert.lengthOf(digitButtons, 0);
+
+                const draftSelector = app.find('#draft-selector');
+
+                assert.isFalse(draftSelector.exists());
+            });
+        });
+
+        suite("empty to", (): void => {
+
+            test("answer", async (): Promise<void> => {
+                const app = mount(App);
+                const tdNodes = app.findAll('table td');
+                const firstSquare = tdNodes[0];
+                await firstSquare.trigger("click");
+
+                const squareTypeSelector = app.get('#square-type-selector');
+                const draftButton = squareTypeSelector.get('button[value="Empty"]');
+                await draftButton.trigger("click");
+
+                assert.isEmpty(firstSquare.text());
+
+                const answerButton = squareTypeSelector.get('button[value="Answer"]');
+                await answerButton.trigger("click");
+
+                assert.isEmpty(firstSquare.text());
+                assert.strictEqual(
+                    answerButton.attributes("data-state"),
+                    "checked"
+                );
+
+                const squareTypeButtons = squareTypeSelector.findAll('button[data-state="checked"]');
+
+                assert.lengthOf(squareTypeButtons, 1);
+
+                const digitSelector = app.find('#digit-selector');
+
+                assert.isTrue(digitSelector.exists());
+
+                const digitButtons = digitSelector.findAll('button[data-state="checked"]');
+
+                assert.lengthOf(digitButtons, 0);
+
+                const draftSelector = app.find('#draft-selector');
+
+                assert.isFalse(draftSelector.exists());
+            });
+
+            test("draft", async (): Promise<void> => {
+                const app = mount(App);
+                const tdNodes = app.findAll('table td');
+                const firstSquare = tdNodes[0];
+                await firstSquare.trigger("click");
+
+                const squareTypeSelector = app.get('#square-type-selector');
+                const answerButton = squareTypeSelector.get('button[value="Empty"]');
+                await answerButton.trigger("click");
+
+                assert.isEmpty(firstSquare.text());
+
+                const draftButton = squareTypeSelector.get('button[value="Draft"]');
+                await draftButton.trigger("click");
+
+                assert.isEmpty(firstSquare.text());
+                assert.strictEqual(
+                    draftButton.attributes("data-state"),
+                    "checked"
+                );
+
+                const squareTypeButtons = squareTypeSelector.findAll('button[data-state="checked"]');
+
+                assert.lengthOf(squareTypeButtons, 1);
+
+                const digitSelector = app.find('#digit-selector');
+
+                assert.isFalse(digitSelector.exists());
+
+                const draftSelector = app.find('#draft-selector');
+
+                assert.isTrue(draftSelector.exists());
+
+                const draftButtons = draftSelector.findAll('button[data-state="checked"]');
+
+                assert.lengthOf(draftButtons, 0);
+            });
+
+            test("filled", async (): Promise<void> => {
+                const app = mount(App);
+                const tdNodes = app.findAll('table td');
+                const firstSquare = tdNodes[0];
+                await firstSquare.trigger("click");
+
+                const squareTypeSelector = app.get('#square-type-selector');
+                const answerButton = squareTypeSelector.get('button[value="Empty"]');
+                await answerButton.trigger("click");
+
+                assert.isEmpty(firstSquare.text());
+
+                const filledButton = squareTypeSelector.get('button[value="Filled"]');
+                await filledButton.trigger("click");
+
+                assert.isEmpty(firstSquare.text());
+                assert.strictEqual(
+                    filledButton.attributes("data-state"),
+                    "checked"
+                );
+
+                const squareTypeButtons = squareTypeSelector.findAll('button[data-state="checked"]');
+
+                assert.lengthOf(squareTypeButtons, 1);
+
+                const digitSelector = app.find('#digit-selector');
+
+                assert.isTrue(digitSelector.exists());
+
+                const digitButtons = digitSelector.findAll('button[data-state="checked"]');
+
+                assert.lengthOf(digitButtons, 0);
+
+                const draftSelector = app.find('#draft-selector');
+
+                assert.isFalse(draftSelector.exists());
+            });
+        });
+
+        suite("filled to", (): void => {
+
+            test("answer", async (): Promise<void> => {
+                const app = mount(App);
+                const tdNodes = app.findAll('table td');
+                const firstSquare = tdNodes[0];
+                await firstSquare.trigger("click");
+
+                const squareTypeSelector = app.get('#square-type-selector');
+                const filledButton = squareTypeSelector.get('button[value="Filled"]');
+                await filledButton.trigger("click");
+
+                const labelNodes = app.findAll('#digit-selector label');
+                await labelNodes[0].trigger("click");
+
+                assert.strictEqual(firstSquare.text(), "1");
+
+                const answerButton = squareTypeSelector.get('button[value="Answer"]');
+                await answerButton.trigger("click");
+
+                assert.isEmpty(firstSquare.text());
+                assert.strictEqual(
+                    answerButton.attributes("data-state"),
+                    "checked"
+                );
+
+                const squareTypeButtons = squareTypeSelector.findAll('button[data-state="checked"]');
+
+                assert.lengthOf(squareTypeButtons, 1);
+
+                const digitSelector = app.find('#digit-selector');
+
+                assert.isTrue(digitSelector.exists());
+
+                const digitButtons = digitSelector.findAll('button[data-state="checked"]');
+
+                assert.lengthOf(digitButtons, 0);
+
+                const draftSelector = app.find('#draft-selector');
+
+                assert.isFalse(draftSelector.exists());
+            });
+
+            test("draft", async (): Promise<void> => {
+                const app = mount(App);
+                const tdNodes = app.findAll('table td');
+                const firstSquare = tdNodes[0];
+                await firstSquare.trigger("click");
+
+                const squareTypeSelector = app.get('#square-type-selector');
+                const filledButton = squareTypeSelector.get('button[value="Filled"]');
+                await filledButton.trigger("click");
+
+                const labelNodes = app.findAll('#digit-selector label');
+                await labelNodes[0].trigger("click");
+
+                assert.strictEqual(firstSquare.text(), "1");
+
+                const draftButton = squareTypeSelector.get('button[value="Draft"]');
+                await draftButton.trigger("click");
+
+                assert.isEmpty(firstSquare.text());
+                assert.strictEqual(
+                    draftButton.attributes("data-state"),
+                    "checked"
+                );
+
+                const squareTypeButtons = squareTypeSelector.findAll('button[data-state="checked"]');
+
+                assert.lengthOf(squareTypeButtons, 1);
+
+                const digitSelector = app.find('#digit-selector');
+
+                assert.isFalse(digitSelector.exists());
+
+                const draftSelector = app.find('#draft-selector');
+
+                assert.isTrue(draftSelector.exists());
+
+                const draftButtons = draftSelector.findAll('button[data-state="checked"]');
+
+                assert.lengthOf(draftButtons, 0);
+            });
+
+            test("empty", async (): Promise<void> => {
+                const app = mount(App);
+                const tdNodes = app.findAll('table td');
+                const firstSquare = tdNodes[0];
+                await firstSquare.trigger("click");
+
+                const squareTypeSelector = app.get('#square-type-selector');
+                const filledButton = squareTypeSelector.get('button[value="Filled"]');
+                await filledButton.trigger("click");
+
+                const labelNodes = app.findAll('#digit-selector label');
+                await labelNodes[0].trigger("click");
+
+                assert.strictEqual(firstSquare.text(), "1");
+
+                const emptyButton = squareTypeSelector.get('button[value="Empty"]');
+                await emptyButton.trigger("click");
+
+                assert.isEmpty(firstSquare.text());
+                assert.strictEqual(
+                    emptyButton.attributes("data-state"),
+                    "checked"
+                );
+
+                const squareTypeButtons = squareTypeSelector.findAll('button[data-state="checked"]');
+
+                assert.lengthOf(squareTypeButtons, 1);
+
+                const digitSelector = app.find('#digit-selector');
+
+                assert.isFalse(digitSelector.exists());
+
+                const draftSelector = app.find('#draft-selector');
+
+                assert.isFalse(draftSelector.exists());
+            });
         });
     });
 });
