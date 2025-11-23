@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
-- Nuxt UI 4.1.0 => 4.2.0.
+- Nuxt UI 4.1.0 => 4.2.1.
 
 ## [2.0.0] - 2025-11-18
 ### Changed
