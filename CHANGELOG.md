@@ -6,7 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
-- Nuxt UI 4.1.0 => 4.2.1.
+- @nuxt/ui 4.1.0 => 4.3.0.
+- happy-dom 18.0.1 => 20.0.11.
+- nuxt 4.2.1 => 4.2.2.
+- vue 3.5.25 => 3.5.26.
+- vue-router 4.6.3 => 4.6.4.
 
 ## [2.0.0] - 2025-11-18
 ### Changed
