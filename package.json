@@ -21,12 +21,12 @@
         "happy-dom": "^20.3.7",
         "typescript": "^5.2.2",
         "vitest": "^4.0.18",
-        "vue": "^3.3.8",
-        "vue-router": "^4.6.4",
         "vue-tsc": "^3.0.3"
     },
     "dependencies": {
         "@nuxt/ui": "^4.0.0",
-        "nuxt": "^4.3.1"
+        "nuxt": "^4.4.2",
+        "vue": "^3.5.31",
+        "vue-router": "^5.0.4"
     }
 }
