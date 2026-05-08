@@ -19,7 +19,7 @@
         "@vitest/coverage-v8": "^4.0.18",
         "@vue/test-utils": "^2.4.6",
         "happy-dom": "^20.3.7",
-        "typescript": "^5.2.2",
+        "typescript": "^6.0.3",
         "vitest": "^4.0.18",
         "vue-tsc": "^3.0.3"
     },
