@@ -6,7 +6,7 @@ export default defineVitestConfig({
             reporter: [
                 ["html", {subdir: "./html/"}],
             ],
-            reportsDirectory: '../ci/coverage/'
+            reportsDirectory: './ci/coverage/'
         },
         environment: 'nuxt',
         include: [
