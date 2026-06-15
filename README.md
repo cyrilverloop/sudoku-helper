@@ -20,7 +20,7 @@ user@host projects$ cd sudoku-helper
 
 Installing the dependencies :
 ```shellsession
-user@host sudoku-helper$ docker compose run --rm app npm i
+user@host sudoku-helper$ docker compose run --rm cli npm i
 ```
 
 
@@ -55,14 +55,14 @@ user@host sudoku-helper$ docker compose down
 
 Running tests :
 ```shellsession
-user@host sudoku-helper$ docker compose run --rm app npm test
+user@host sudoku-helper$ docker compose run --rm cli npm test
 ```
 
 ### In production
 
 Building :
 ```shellsession
-user@host sudoku-helper$ docker compose run --rm prod npm run build
+user@host sudoku-helper$ docker compose run --rm cli npm run build
 ```
 
 Starting :

@@ -1,4 +1,12 @@
 services:
+    cli:
+        image: node:alpine
+        profiles:
+            - cli
+        volumes:
+            - ./:/var/www/
+        working_dir: /var/www/
+
     dev:
         image: node:alpine
         volumes:
