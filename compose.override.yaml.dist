@@ -1,5 +1,5 @@
 services:
-    app:
+    dev:
         command: ["npm", "run", "dev"]
         #command: ["npm", "run", "dev-tls"] # If you want to use a TLS certificate.
         ports:

@@ -1,5 +1,5 @@
 services:
-    app:
+    dev:
         image: node:alpine
         volumes:
             - ./:/var/www/
