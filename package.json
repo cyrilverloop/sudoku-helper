@@ -19,13 +19,13 @@
         "@vitest/coverage-v8": "^4.0.18",
         "@vue/test-utils": "^2.4.6",
         "happy-dom": "^20.3.7",
-        "typescript": "^6.0.3",
+        "typescript": "^7.0.2",
         "vitest": "^4.0.18",
         "vue-tsc": "^3.0.3"
     },
     "dependencies": {
         "@nuxt/ui": "^4.0.0",
-        "nuxt": "^4.4.8",
+        "nuxt": "^4.5.2",
         "vue": "^3.5.31",
         "vue-router": "^5.0.4"
     }
